@@ -4,8 +4,7 @@ Custom discord bot that saves every message in a DynamoDB table.
 
 ## Set-up
 - Paste discord token and AWS Secrets in `Dockerfile`.
-- (OPTIONAL) Change the role and channel ID's in `consts.go`  
-- Make a DynamoDB table with `authorId` (String) as a primary partition key and `messageId` (String) as the primary sort key.
+- (OPTIONAL) Change the role and channel ID's in `consts.go`
 - `docker build . -t observerbot`
 - `docker run observerbot`
 

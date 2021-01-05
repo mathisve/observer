@@ -15,4 +15,6 @@ const (
 	ERROR_CREATING_SESSION   = "error creating Discord session,"
 	ERROR_OPENING_CONNECTION = "error opening connection,"
 	BOT_IS_RUNNING           = "Bot is now running"
+
+	CREATING_TABLE = "Creating %v table in %v"
 )

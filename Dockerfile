@@ -10,4 +10,3 @@ ENV AWS_DEFAULT_REGION=REGION
 
 RUN go build -o main .
 CMD ["/app/main"]
-
