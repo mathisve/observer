@@ -18,6 +18,9 @@ var dyn *dynamodb.DynamoDB
 const (
 	TABLE_NAME = "discordObserver"
 	REGION     = "eu-central-1"
+
+	DELETE_AFTER_TIME = 60 * 5
+	MAX_DELETE_RETRIES = 3
 )
 
 func init() {
@@ -71,15 +74,15 @@ func ensureTableExists() error {
 					KeySchema: []*dynamodb.KeySchemaElement{
 						{
 							AttributeName: aws.String("authorId"),
-							KeyType: aws.String("HASH"),
+							KeyType:       aws.String("HASH"),
 						},
 						{
 							AttributeName: aws.String("messageId"),
-							KeyType: aws.String("RANGE"),
+							KeyType:       aws.String("RANGE"),
 						},
 					},
 					BillingMode: aws.String("PAY_PER_REQUEST"),
-					TableName: aws.String(TABLE_NAME),
+					TableName:   aws.String(TABLE_NAME),
 				})
 				if err != nil {
 					return err
@@ -98,7 +101,6 @@ func ensureTableExists() error {
 
 	return nil
 }
-
 
 func PutMessage(m *discordgo.MessageCreate) error {
 	p, err := dynamodbattribute.MarshalMap(m)
@@ -119,14 +121,14 @@ func PutMessage(m *discordgo.MessageCreate) error {
 	return err
 }
 
+// TODO: Change to bulk delete with messages saved to a file (or dynamodb)
 func DeleteMessageEventually(s *discordgo.Session, m *discordgo.MessageCreate, tries int) {
 	// makes sure it doesn't infinitely try to delete a message
-	if tries > 3 {
+	if tries > MAX_DELETE_RETRIES {
 		return
 	}
 
-	// 5 minutes
-	time.Sleep(5 * 60 * time.Second)
+	time.Sleep(DELETE_AFTER_TIME * time.Second)
 
 	err := s.ChannelMessageDelete(m.ChannelID, m.ID)
 	if err != nil {

@@ -10,7 +10,7 @@ const (
 	// Unless users with this roles' message starts with --
 	// will be deleted:  hello
 	// won't be deleted: --hello
-	IMMUNE_ROLE_ID           = "795656423257669642"
+	IMMUNE_ROLE_ID = "795656423257669642"
 
 	ERROR_CREATING_SESSION   = "error creating Discord session,"
 	ERROR_OPENING_CONNECTION = "error opening connection,"

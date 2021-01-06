@@ -57,9 +57,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	err := PutMessage(m)
-	if err != nil {
-		log.Print(err)
+	// Don't log other bots' messages
+	if m.Author.Bot == false {
+		err := PutMessage(m)
+		if err != nil {
+			log.Print(err)
+		}
 	}
 }
 
