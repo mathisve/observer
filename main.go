@@ -12,12 +12,12 @@ import (
 )
 
 var (
-	FUNCTION string
-	TOKEN    string
-	REGION	string
-	TABLE_NAME	string
+	FUNCTION                  string
+	TOKEN                     string
+	REGION                    string
+	TABLE_NAME                string
 	GARBAGE_COLLECTOR_CHANNEL string
-	IMMUNE_ROLE_ID string
+	IMMUNE_ROLE_ID            string
 )
 
 func init() {
@@ -85,7 +85,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		re := regexp.MustCompile(`(http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?`)
-		contentLinks := re.FindAllString(m.Content,-1)
+		contentLinks := re.FindAllString(m.Content, -1)
 
 		for _, link := range contentLinks {
 			split := strings.Split(link, "/")
@@ -101,8 +101,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				log.Println(err)
 			}
 		}
-
-
 
 		for _, attachment := range m.Attachments {
 			event := Event{

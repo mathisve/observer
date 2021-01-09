@@ -9,14 +9,14 @@ const (
 )
 
 var ctToExt = map[string]string{
-	"application/octet-stream":				  ".mov",
-	"video/quicktime":				  ".mov",
-	"text/css":        ".css",
-	"image/gif":                      ".gif",
-	"image/jpeg":                     ".jpeg",
-	"text/javascript": ".js",
-	"application/json":               ".json",
-	"application/pdf":                ".pdf",
-	"image/png":                      ".png",
-	"image/webp":                     ".webp",
+	"application/octet-stream": ".mov",
+	"video/quicktime":          ".mov",
+	"text/css":                 ".css",
+	"image/gif":                ".gif",
+	"image/jpeg":               ".jpeg",
+	"text/javascript":          ".js",
+	"application/json":         ".json",
+	"application/pdf":          ".pdf",
+	"image/png":                ".png",
+	"image/webp":               ".webp",
 }
