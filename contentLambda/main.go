@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
@@ -8,8 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"log"
+	"net/http"
 	"os"
-	"strings"
 )
 
 var REGION, BUCKET, TABLE string
@@ -80,8 +81,16 @@ func handler(event Event) (string, error) {
 
 	bytesHash := hash(bytes)
 
-	split := strings.Split(event.Filename, ".")
-	s3filename := fmt.Sprintf("%v.%v", ToString(bytesHash), split[len(split)-1])
+	log.Println(http.DetectContentType(bytes))
+	ext := ctToExt[http.DetectContentType(bytes)]
+	if ext == "" {
+		return "", errors.New("no valid file found")
+	}
+
+	s3filename := fmt.Sprintf("%v%v", ToString(bytesHash), ext)
+
+	log.Println(ext)
+	log.Println(http.DetectContentType(bytes))
 
 	var dbEntry = DBEntry{
 		Link:       event.Link,
@@ -95,7 +104,7 @@ func handler(event Event) (string, error) {
 
 	log.Printf("%+v", dbEntry)
 
-	err = uploadToS3(s3filename, bytesHash)
+	err = uploadToS3(s3filename, bytes)
 	if err != nil {
 		log.Println(err)
 		return "", err

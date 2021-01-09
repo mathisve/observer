@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"regexp"
 	"strings"
 	"syscall"
 
@@ -13,11 +14,21 @@ import (
 var (
 	FUNCTION string
 	TOKEN    string
+	REGION	string
+	TABLE_NAME	string
+	GARBAGE_COLLECTOR_CHANNEL string
+	IMMUNE_ROLE_ID string
 )
 
 func init() {
 	TOKEN = os.Getenv("TOKEN")
 	FUNCTION = os.Getenv("FUNCTION")
+	REGION = os.Getenv("AWS_DEFAULT_REGION")
+	TABLE_NAME = os.Getenv("TABLE_NAME")
+	GARBAGE_COLLECTOR_CHANNEL = os.Getenv("GARBAGE")
+	IMMUNE_ROLE_ID = os.Getenv("IMMUNE")
+
+	log.Println(REGION)
 }
 
 type Event struct {
@@ -72,6 +83,26 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err != nil {
 			log.Print(err)
 		}
+
+		re := regexp.MustCompile(`(http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?`)
+		contentLinks := re.FindAllString(m.Content,-1)
+
+		for _, link := range contentLinks {
+			split := strings.Split(link, "/")
+			event := Event{
+				Link:      link,
+				Filename:  split[len(split)-1],
+				AuthorId:  m.Author.ID,
+				MessageId: m.ID,
+			}
+
+			err = InvokeLambda(event)
+			if err != nil {
+				log.Println(err)
+			}
+		}
+
+
 
 		for _, attachment := range m.Attachments {
 			event := Event{

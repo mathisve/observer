@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/bwmarrin/discordgo"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -22,7 +23,7 @@ func init() {
 
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Config: aws.Config{
-			Region: aws.String(REGION),
+			Region: aws.String(os.Getenv("AWS_DEFAULT_REGION")),
 		},
 	})
 
