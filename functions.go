@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/bwmarrin/discordgo"
 	"log"
 	"strings"
@@ -14,26 +16,10 @@ import (
 )
 
 var dyn *dynamodb.DynamoDB
-
-const (
-	TABLE_NAME = "discordObserver"
-	REGION     = "eu-central-1"
-
-	DELETE_AFTER_TIME = 60 * 5
-	MAX_DELETE_RETRIES = 3
-)
+var lam *lambda.Lambda
 
 func init() {
-	dyn = getDynamo()
 
-	err := ensureTableExists()
-	if err != nil {
-		log.Panic(err)
-	}
-
-}
-
-func getDynamo() *dynamodb.DynamoDB {
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Config: aws.Config{
 			Region: aws.String(REGION),
@@ -44,7 +30,14 @@ func getDynamo() *dynamodb.DynamoDB {
 		log.Panic(err)
 	}
 
-	return dynamodb.New(sess)
+	dyn = dynamodb.New(sess)
+	err = ensureTableExists()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	lam = lambda.New(sess)
+
 }
 
 func ensureTableExists() error {
@@ -67,7 +60,7 @@ func ensureTableExists() error {
 							AttributeType: aws.String("S"),
 						},
 						{
-							AttributeName: aws.String("messageId"),
+							AttributeName: aws.String("authorId"),
 							AttributeType: aws.String("S"),
 						},
 					},
@@ -81,7 +74,7 @@ func ensureTableExists() error {
 							KeyType:       aws.String("RANGE"),
 						},
 					},
-					BillingMode: aws.String("PAY_PER_REQUEST"),
+					BillingMode: aws.String(dynamodb.BillingModePayPerRequest),
 					TableName:   aws.String(TABLE_NAME),
 				})
 				if err != nil {
@@ -146,4 +139,19 @@ func DeleteMessageEventually(s *discordgo.Session, m *discordgo.MessageCreate, t
 	}
 
 	log.Printf(MESSAGE_DELETED_SUCESSFULLY, m.ID, m.Content, m.Author.Username, m.Author.ID)
+}
+
+func InvokeLambda(e Event) error {
+	payload, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+
+	_, err = lam.Invoke(&lambda.InvokeInput{
+		FunctionName:   aws.String(FUNCTION),
+		InvocationType: aws.String(lambda.InvocationTypeRequestResponse),
+		Payload:        payload,
+	})
+
+	return err
 }

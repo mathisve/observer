@@ -11,17 +11,26 @@ import (
 )
 
 var (
-	Token string
+	FUNCTION string
+	TOKEN    string
 )
 
 func init() {
-	Token = os.Getenv("TOKEN")
+	TOKEN = os.Getenv("TOKEN")
+	FUNCTION = os.Getenv("FUNCTION")
+}
+
+type Event struct {
+	Link      string `json:"link"`
+	Filename  string `json:"filename"`
+	AuthorId  string `json:"authorId"`
+	MessageId string `json:"messageId"`
 }
 
 func main() {
 
 	// Create a new Discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + Token)
+	dg, err := discordgo.New("Bot " + TOKEN)
 	if err != nil {
 		log.Println(ERROR_CREATING_SESSION, err)
 		return
@@ -62,6 +71,20 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		err := PutMessage(m)
 		if err != nil {
 			log.Print(err)
+		}
+
+		for _, attachment := range m.Attachments {
+			event := Event{
+				Link:      attachment.URL,
+				Filename:  attachment.Filename,
+				AuthorId:  m.Author.ID,
+				MessageId: m.ID,
+			}
+
+			err = InvokeLambda(event)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}
 }

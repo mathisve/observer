@@ -17,4 +17,10 @@ const (
 	BOT_IS_RUNNING           = "Bot is now running"
 
 	CREATING_TABLE = "Creating %v table in %v"
+
+	TABLE_NAME = "discordObserver"
+	REGION     = "eu-central-1"
+
+	DELETE_AFTER_TIME  = 60 * 5
+	MAX_DELETE_RETRIES = 3
 )
