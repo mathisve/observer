@@ -81,7 +81,7 @@ func handler(event Event) (string, error) {
 	bytesHash := hash(bytes)
 
 	split := strings.Split(event.Filename, ".")
-	s3filename := fmt.Sprintf("%v%v", ToString(bytesHash), split[len(split)-1])
+	s3filename := fmt.Sprintf("%v.%v", ToString(bytesHash), split[len(split)-1])
 
 	var dbEntry = DBEntry{
 		Link:       event.Link,
