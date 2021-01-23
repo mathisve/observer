@@ -1,4 +1,15 @@
-package main
+package static
+
+import "os"
+
+var (
+	FUNCTION                  string
+	TOKEN                     string
+	REGION                    string
+	TABLE_NAME                string
+	GARBAGE_COLLECTOR_CHANNEL string
+	IMMUNE_ROLE_ID            string
+)
 
 const (
 	MESSAGE_DELETED_SUCESSFULLY = "Deleted message with ID: %v with Content: %v from User: %v with UserID: %v"
@@ -13,4 +24,15 @@ const (
 
 	DELETE_AFTER_TIME  = 60 * 5
 	MAX_DELETE_RETRIES = 3
+
+	LINK_REGEX = `(http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?`
 )
+
+func SetStaticVars() {
+	TOKEN = os.Getenv("TOKEN")
+	FUNCTION = os.Getenv("FUNCTION")
+	REGION = os.Getenv("AWS_DEFAULT_REGION")
+	TABLE_NAME = os.Getenv("TABLE_NAME")
+	GARBAGE_COLLECTOR_CHANNEL = os.Getenv("GARBAGE")
+	IMMUNE_ROLE_ID = os.Getenv("IMMUNE")
+}
