@@ -61,7 +61,7 @@ func ensureTableExists() error {
 							AttributeType: aws.String("S"),
 						},
 						{
-							AttributeName: aws.String("authorId"),
+							AttributeName: aws.String("messageId"),
 							AttributeType: aws.String("S"),
 						},
 					},

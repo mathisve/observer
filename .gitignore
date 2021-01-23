@@ -1,2 +1,7 @@
 .idea/*
 realDockerfile
+.terraform.lock.hcl
+.terraform/
+attachmentLambda/
+terraform.tfstate
+terraform.tfstate.backup
