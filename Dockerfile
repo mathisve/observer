@@ -9,7 +9,8 @@ ENV AWS_SECRET_ACCESS_KEY=SAK
 ENV AWS_DEFAULT_REGION=REGION
 
 # DynamoDB table where messages will be stored (gets created automatically)
-ENV TABLE_NAME=TABLE_NAME
+ENV MESSAGE_TABLE_NAME=TABLE_NAME
+ENV VOICE_EVENTS_TABLE_NAME=TABLE_NAME
 
 # Lamba function name of contentLambda
 ENV FUNCTION=LAMBDAFUNCTION

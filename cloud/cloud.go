@@ -2,13 +2,12 @@ package cloud
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/lambda"
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
 
@@ -31,7 +30,6 @@ func init() {
 	}
 
 	dyn = dynamodb.New(sess)
-	err = ensureTableExists()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -41,83 +39,46 @@ func init() {
 }
 
 
-func ensureTableExists() error {
-	_, descrerr := dyn.DescribeTable(&dynamodb.DescribeTableInput{
-		TableName: aws.String(static.TABLE_NAME),
-	})
-
-	if descrerr != nil {
-		if aerr, ok := descrerr.(awserr.Error); ok {
-			switch aerr.Code() {
-			case dynamodb.ErrCodeResourceNotFoundException:
-				// table doesn't exist
-				// creating one
-				log.Printf(static.CREATING_TABLE, static.TABLE_NAME, static.REGION)
-
-				_, err := dyn.CreateTable(&dynamodb.CreateTableInput{
-					AttributeDefinitions: []*dynamodb.AttributeDefinition{
-						{
-							AttributeName: aws.String("authorId"),
-							AttributeType: aws.String("S"),
-						},
-						{
-							AttributeName: aws.String("messageId"),
-							AttributeType: aws.String("S"),
-						},
-					},
-					KeySchema: []*dynamodb.KeySchemaElement{
-						{
-							AttributeName: aws.String("authorId"),
-							KeyType:       aws.String("HASH"),
-						},
-						{
-							AttributeName: aws.String("messageId"),
-							KeyType:       aws.String("RANGE"),
-						},
-					},
-					BillingMode: aws.String(dynamodb.BillingModePayPerRequest),
-					TableName:   aws.String(static.TABLE_NAME),
-				})
-				if err != nil {
-					return err
-				}
-
-				// wait until the table is actually available
-				err = dyn.WaitUntilTableExists(&dynamodb.DescribeTableInput{
-					TableName: aws.String(static.TABLE_NAME),
-				})
-				if err != nil {
-					return err
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-func PutMessage(m *discordgo.MessageCreate) error {
-	p, err := dynamodbattribute.MarshalMap(m)
+func PutMessageEvent(event static.DBMessageEvent, tableName string) error {
+	p, err := dynamodbattribute.MarshalMap(event)
 	if err != nil {
 		return err
 	}
 
 	// Primary Partition Key
-	p["authorId"] = &dynamodb.AttributeValue{S: aws.String(m.Author.ID)}
+	p["authorId"] = &dynamodb.AttributeValue{S: aws.String(event.AuthorId)}
 	// Primary Sort Key
-	p["messageId"] = &dynamodb.AttributeValue{S: aws.String(m.ID)}
+	p["messageId"] = &dynamodb.AttributeValue{S: aws.String(event.MessageId)}
 
 	_, err = dyn.PutItem(&dynamodb.PutItemInput{
 		Item:      p,
-		TableName: aws.String(static.TABLE_NAME),
+		TableName: aws.String(tableName),
+	})
+
+	return err
+}
+
+func PutVoiceEvent(event static.DBVoiceEvent, tableName string) error {
+	p, err := dynamodbattribute.MarshalMap(event)
+	if err != nil {
+		return err
+	}
+
+	// Primary Partition Key
+	p["userId"] = &dynamodb.AttributeValue{S: aws.String(event.UserId)}
+	// Primary Sort Key
+	p["timestamp"] = &dynamodb.AttributeValue{N: aws.String(fmt.Sprintf("%v", event.Timestamp))}
+
+	_, err = dyn.PutItem(&dynamodb.PutItemInput{
+		Item:      p,
+		TableName: aws.String(tableName),
 	})
 
 	return err
 }
 
 
-
-func InvokeLambda(e static.DBMessageEvent) error {
+func InvokeLambda(e static.DBAttachmentEvent) error {
 	payload, err := json.Marshal(e)
 	if err != nil {
 		return err

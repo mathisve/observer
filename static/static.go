@@ -6,7 +6,8 @@ var (
 	FUNCTION                  string
 	TOKEN                     string
 	REGION                    string
-	TABLE_NAME                string
+	MESSAGE_TABLE_NAME                string
+	VOICE_EVENTS_TABLE_NAME	string
 	GARBAGE_COLLECTOR_CHANNEL string
 	IMMUNE_ROLE_ID            string
 )
@@ -20,8 +21,6 @@ const (
 	ERROR_OPENING_CONNECTION = "error opening connection,"
 	BOT_IS_RUNNING           = "Bot is now running"
 
-	CREATING_TABLE = "Creating %v table in %v"
-
 	DELETE_AFTER_TIME  = 60 * 5
 	MAX_DELETE_RETRIES = 3
 
@@ -32,7 +31,8 @@ func SetStaticVars() {
 	TOKEN = os.Getenv("TOKEN")
 	FUNCTION = os.Getenv("FUNCTION")
 	REGION = os.Getenv("AWS_DEFAULT_REGION")
-	TABLE_NAME = os.Getenv("TABLE_NAME")
+	MESSAGE_TABLE_NAME = os.Getenv("MESSAGE_TABLE_NAME")
+	VOICE_EVENTS_TABLE_NAME = os.Getenv("VOICE_EVENTS_TABLE_NAME")
 	GARBAGE_COLLECTOR_CHANNEL = os.Getenv("GARBAGE")
 	IMMUNE_ROLE_ID = os.Getenv("IMMUNE")
 }

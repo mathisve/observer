@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 	"observerBot/static"
+	"time"
 )
 
 type MessageListener struct {}
@@ -29,9 +30,11 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 		return
 	}
 
+	messageEvent := newMessageEvent(m)
+
 	// Don't log other bots' messages
 	if m.Author.Bot == false {
-		err := cloud.PutMessage(m)
+		err := cloud.PutMessageEvent(messageEvent, static.MESSAGE_TABLE_NAME)
 		if err != nil {
 			log.Print(err)
 		}
@@ -41,7 +44,7 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 
 		for _, link := range contentLinks {
 			split := strings.Split(link, "/")
-			event := static.DBMessageEvent{
+			event := static.DBAttachmentEvent{
 				Link:      link,
 				Filename:  split[len(split)-1],
 				AuthorId:  m.Author.ID,
@@ -55,7 +58,7 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 		}
 
 		for _, attachment := range m.Attachments {
-			event := static.DBMessageEvent{
+			event := static.DBAttachmentEvent{
 				Link:      attachment.URL,
 				Filename:  attachment.Filename,
 				AuthorId:  m.Author.ID,
@@ -78,4 +81,13 @@ func stringSliceContains(sl []string, s string) bool {
 	}
 
 	return false
+}
+
+func newMessageEvent(m *discordgo.MessageCreate) static.DBMessageEvent {
+	return static.DBMessageEvent{
+		AuthorId:  m.Author.ID,
+		MessageId: m.ID,
+		Timestamp: time.Now().Unix(),
+		Event:     *m,
+	}
 }

@@ -5,3 +5,6 @@ realDockerfile
 attachmentLambda/
 terraform.tfstate
 terraform.tfstate.backup
+
+attachmentLambda.zip
+lambda
