@@ -5,17 +5,12 @@ import (
 	"log"
 	"observerBot/auxilary"
 	"observerBot/cloud"
+	"observerBot/listeners/commands"
 	"regexp"
 	"strings"
 	"observerBot/static"
 	"time"
 )
-
-type MessageListener struct {}
-
-func NewMessageListener() *MessageListener {
-	return &MessageListener{}
-}
 
 func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.ChannelID == static.GARBAGE_COLLECTOR_CHANNEL {
@@ -30,10 +25,15 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 		return
 	}
 
-	messageEvent := newMessageEvent(m)
-
 	// Don't log other bots' messages
 	if m.Author.Bot == false {
+
+		if strings.Contains(strings.ToLower(m.Content), "woah") {
+			commands.WoahReply(s, m)
+		}
+
+
+		messageEvent := newMessageEvent(m)
 		err := cloud.PutMessageEvent(messageEvent, static.MESSAGE_TABLE_NAME)
 		if err != nil {
 			log.Print(err)

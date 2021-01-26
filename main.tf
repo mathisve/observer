@@ -31,6 +31,31 @@ resource "aws_dynamodb_table" "MessagesTable" {
   tags = {
     "DDBTableGroupKey-observerBot" = "observerBot"
   }
+}
+
+resource "aws_dynamodb_table" "MemberAdd" {
+  name = "observerMemberAdd"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key = "guildId"
+  range_key = "timestamp"
+
+  attribute {
+    name = "guildId"
+    type = "S"
+  }
+
+  attribute {
+    name = "timestamp"
+    type = "N"
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  tags = {
+    "DDBTableGroupKey-observerBot" = "observerBot"
+  }
 
 }
 

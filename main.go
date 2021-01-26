@@ -12,14 +12,11 @@ import (
 	"observerBot/static"
 )
 
-
-
 func init() {
 	static.SetStaticVars()
 }
 
 type Event struct {
-
 }
 
 func main() {
@@ -34,6 +31,7 @@ func main() {
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
 
 	dg.AddHandler(listeners.NewVoiceListener().Handler)
+	dg.AddHandler(listeners.NewMemberAddListener().Handler)
 	dg.AddHandler(listeners.NewMessageListener().Handler)
 
 	err = dg.Open()

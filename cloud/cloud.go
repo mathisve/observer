@@ -2,7 +2,6 @@ package cloud
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -38,17 +37,11 @@ func init() {
 
 }
 
-
 func PutMessageEvent(event static.DBMessageEvent, tableName string) error {
 	p, err := dynamodbattribute.MarshalMap(event)
 	if err != nil {
 		return err
 	}
-
-	// Primary Partition Key
-	p["authorId"] = &dynamodb.AttributeValue{S: aws.String(event.AuthorId)}
-	// Primary Sort Key
-	p["messageId"] = &dynamodb.AttributeValue{S: aws.String(event.MessageId)}
 
 	_, err = dyn.PutItem(&dynamodb.PutItemInput{
 		Item:      p,
@@ -64,11 +57,6 @@ func PutVoiceEvent(event static.DBVoiceEvent, tableName string) error {
 		return err
 	}
 
-	// Primary Partition Key
-	p["userId"] = &dynamodb.AttributeValue{S: aws.String(event.UserId)}
-	// Primary Sort Key
-	p["timestamp"] = &dynamodb.AttributeValue{N: aws.String(fmt.Sprintf("%v", event.Timestamp))}
-
 	_, err = dyn.PutItem(&dynamodb.PutItemInput{
 		Item:      p,
 		TableName: aws.String(tableName),
@@ -77,6 +65,19 @@ func PutVoiceEvent(event static.DBVoiceEvent, tableName string) error {
 	return err
 }
 
+func PutMemberAdd(event static.DBMemberAddEvent, tableName string) error {
+	p, err := dynamodbattribute.MarshalMap(event)
+	if err != nil {
+		return err
+	}
+
+	_, err = dyn.PutItem(&dynamodb.PutItemInput{
+		Item:      p,
+		TableName: aws.String(tableName),
+	})
+
+	return err
+}
 
 func InvokeLambda(e static.DBAttachmentEvent) error {
 	payload, err := json.Marshal(e)

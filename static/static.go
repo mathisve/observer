@@ -6,8 +6,9 @@ var (
 	FUNCTION                  string
 	TOKEN                     string
 	REGION                    string
-	MESSAGE_TABLE_NAME                string
-	VOICE_EVENTS_TABLE_NAME	string
+	MESSAGE_TABLE_NAME        string
+	VOICE_EVENTS_TABLE_NAME   string
+	MEMBER_ADD_TABLE_NAME     string
 	GARBAGE_COLLECTOR_CHANNEL string
 	IMMUNE_ROLE_ID            string
 )
@@ -33,6 +34,7 @@ func SetStaticVars() {
 	REGION = os.Getenv("AWS_DEFAULT_REGION")
 	MESSAGE_TABLE_NAME = os.Getenv("MESSAGE_TABLE_NAME")
 	VOICE_EVENTS_TABLE_NAME = os.Getenv("VOICE_EVENTS_TABLE_NAME")
+	MEMBER_ADD_TABLE_NAME = os.Getenv("MEMBER_ADD_TABLE_NAME")
 	GARBAGE_COLLECTOR_CHANNEL = os.Getenv("GARBAGE")
 	IMMUNE_ROLE_ID = os.Getenv("IMMUNE")
 }

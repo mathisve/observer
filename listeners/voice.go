@@ -10,17 +10,11 @@ import (
 
 var voiceStateCache = map[string]discordgo.VoiceState{}
 
-type VoiceListener struct {}
-
 const (
 	voiceJoinAction   = "JOINED"
 	voiceLeaveAction  = "LEFT"
 	voiceSwitchAction = "SWITCHED"
 )
-
-func NewVoiceListener() *VoiceListener {
-	return &VoiceListener{}
-}
 
 func (l *VoiceListener) Handler(s *discordgo.Session, e *discordgo.VoiceStateUpdate) {
 	defer updateVoiceStateCache(e)
