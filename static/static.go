@@ -11,6 +11,9 @@ var (
 	MEMBER_ADD_TABLE_NAME     string
 	GARBAGE_COLLECTOR_CHANNEL string
 	IMMUNE_ROLE_ID            string
+	STATIC_ROLE_ID			  string
+	EVERYBODY_ROLE_ID		  string
+	LOCKDOWN				  bool
 )
 
 const (
@@ -37,4 +40,13 @@ func SetStaticVars() {
 	MEMBER_ADD_TABLE_NAME = os.Getenv("MEMBER_ADD_TABLE_NAME")
 	GARBAGE_COLLECTOR_CHANNEL = os.Getenv("GARBAGE")
 	IMMUNE_ROLE_ID = os.Getenv("IMMUNE")
+	EVERYBODY_ROLE_ID = os.Getenv("EVERYBODY_ROLE_ID")
+}
+
+func SetLockDown() {
+	LOCKDOWN = true
+}
+
+func ReleaseLockDown() {
+	LOCKDOWN = false
 }

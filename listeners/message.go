@@ -14,10 +14,6 @@ import (
 
 func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.ChannelID == static.GARBAGE_COLLECTOR_CHANNEL {
-		if stringSliceContains(m.Member.Roles, static.IMMUNE_ROLE_ID) && strings.Contains(m.Content, "--") {
-			return
-		}
-
 		go auxilary.DeleteMessageEventually(s, m, 0)
 	}
 
@@ -27,11 +23,19 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 
 	// Don't log other bots' messages
 	if m.Author.Bot == false {
+		if stringSliceContains(m.Member.Roles, static.IMMUNE_ROLE_ID) {
+			// admin commands
+
+			if strings.Contains(strings.ToLower(m.Content), "!lockdown") {
+				commands.Lockdown(s, m)
+			}
+
+		}
+
 
 		if strings.Contains(strings.ToLower(m.Content), "woah") {
 			commands.WoahReply(s, m)
 		}
-
 
 		messageEvent := newMessageEvent(m)
 		err := cloud.PutMessageEvent(messageEvent, static.MESSAGE_TABLE_NAME)

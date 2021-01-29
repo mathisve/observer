@@ -72,7 +72,7 @@ func PutMemberAdd(event static.DBMemberAddEvent, tableName string) error {
 	}
 
 	_, err = dyn.PutItem(&dynamodb.PutItemInput{
-		Item:      p,
+		Item:     p,
 		TableName: aws.String(tableName),
 	})
 

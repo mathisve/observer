@@ -24,7 +24,7 @@ type DBAttachmentEvent struct {
 }
 
 type DBMemberAddEvent struct {
-	GuildId   string `json:"guildId"`
+	UserId   string `json:"guildId"`
 	Timestamp int64  `json:"timestamp"`
-	Event     discordgo.Member
+	Event     discordgo.Member `json:"event"`
 }

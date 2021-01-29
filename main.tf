@@ -36,11 +36,11 @@ resource "aws_dynamodb_table" "MessagesTable" {
 resource "aws_dynamodb_table" "MemberAdd" {
   name = "observerMemberAdd"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = "guildId"
+  hash_key = "MemberId"
   range_key = "timestamp"
 
   attribute {
-    name = "guildId"
+    name = "MemberId"
     type = "S"
   }
 
@@ -56,7 +56,6 @@ resource "aws_dynamodb_table" "MemberAdd" {
   tags = {
     "DDBTableGroupKey-observerBot" = "observerBot"
   }
-
 }
 
 resource "aws_dynamodb_table" "AttachmentTable" {
@@ -86,6 +85,31 @@ resource "aws_dynamodb_table" "AttachmentTable" {
 
 resource "aws_dynamodb_table" "VoiceEventsTable" {
   name = "observerBotVoiceEvents"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key = "userId"
+  range_key = "timestamp"
+
+  attribute {
+    name = "userId"
+    type = "S"
+  }
+
+  attribute {
+    name = "timestamp"
+    type = "N"
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  tags = {
+    "DDBTableGroupKey-observerBot" = "observerBot"
+  }
+}
+
+resource "aws_dynamodb_table" "BannedMembers" {
+  name = "observerBannedMembers"
   billing_mode = "PAY_PER_REQUEST"
   hash_key = "userId"
   range_key = "timestamp"
