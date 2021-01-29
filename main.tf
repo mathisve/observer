@@ -36,11 +36,11 @@ resource "aws_dynamodb_table" "MessagesTable" {
 resource "aws_dynamodb_table" "MemberAdd" {
   name = "observerMemberAdd"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = "MemberId"
+  hash_key = "userId"
   range_key = "timestamp"
 
   attribute {
-    name = "MemberId"
+    name = "userId"
     type = "S"
   }
 
