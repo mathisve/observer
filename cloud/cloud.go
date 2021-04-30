@@ -1,20 +1,25 @@
 package cloud
 
 import (
-	"encoding/json"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"github.com/google/uuid"
 	"log"
 	"os"
+	"sync"
+	"time"
 
-	"observerBot/static"
+	"gus/static"
 )
 
-var dyn *dynamodb.DynamoDB
-var lam *lambda.Lambda
+var cwl *cloudwatchlogs.CloudWatchLogs
+
+var sequenceToken string
+var logStreamName string
+
+var logQueue []*cloudwatchlogs.InputLogEvent
+var logQueueLock sync.Mutex
 
 func init() {
 
@@ -28,68 +33,85 @@ func init() {
 		log.Panic(err)
 	}
 
-	dyn = dynamodb.New(sess)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	lam = lambda.New(sess)
+	cwl = cloudwatchlogs.New(sess)
 
 }
 
-func PutMessageEvent(event static.DBMessageEvent, tableName string) error {
-	p, err := dynamodbattribute.MarshalMap(event)
+func PutLogEvent(e static.LogEvent) error {
+	event := cloudwatchlogs.InputLogEvent {
+			Timestamp: &e.Timestamp,
+			Message:   &e.Message,
+	}
+
+	logQueueLock.Lock()
+	defer logQueueLock.Unlock()
+
+	logQueue = append(logQueue, &event)
+	return nil
+}
+
+func CreateLogStream() error {
+
+	name := uuid.New().String()
+
+	_, err := cwl.CreateLogStream(&cloudwatchlogs.CreateLogStreamInput{
+		LogGroupName:  &static.LOG_GROUP_NAME,
+		LogStreamName: &name,
+	})
+
 	if err != nil {
 		return err
 	}
 
-	_, err = dyn.PutItem(&dynamodb.PutItemInput{
-		Item:      p,
-		TableName: aws.String(tableName),
-	})
-
+	logStreamName = name
 	return err
 }
 
-func PutVoiceEvent(event static.DBVoiceEvent, tableName string) error {
-	p, err := dynamodbattribute.MarshalMap(event)
-	if err != nil {
-		return err
+func PushLogs()  {
+	for {
+		time.Sleep(time.Second * 15)
+
+		logQueueLock.Lock()
+
+		var input cloudwatchlogs.PutLogEventsInput
+		if len(logQueue) > 0 {
+
+			if sequenceToken == "" {
+				err := CreateLogStream()
+				if err != nil {
+					log.Println(err)
+				}
+
+				input = cloudwatchlogs.PutLogEventsInput{
+					LogEvents:  logQueue,
+					LogGroupName:  aws.String(os.Getenv("LOG_GROUP_NAME")),
+					LogStreamName: &logStreamName,
+				}
+			} else {
+				input = cloudwatchlogs.PutLogEventsInput{
+					LogEvents:  logQueue,
+					LogGroupName:  aws.String(os.Getenv("LOG_GROUP_NAME")),
+					LogStreamName: &logStreamName,
+					SequenceToken: &sequenceToken,
+				}
+			}
+
+			resp, err := cwl.PutLogEvents(&input)
+			if err != nil {
+				log.Println(err)
+			}
+
+			if resp != nil {
+				if resp.NextSequenceToken != nil {
+					sequenceToken = *resp.NextSequenceToken
+				}
+			}
+
+			logQueue = []*cloudwatchlogs.InputLogEvent{}
+
+		}
+
+		logQueueLock.Unlock()
+
 	}
-
-	_, err = dyn.PutItem(&dynamodb.PutItemInput{
-		Item:      p,
-		TableName: aws.String(tableName),
-	})
-
-	return err
-}
-
-func PutMemberAdd(event static.DBMemberAddEvent, tableName string) error {
-	p, err := dynamodbattribute.MarshalMap(event)
-	if err != nil {
-		return err
-	}
-
-	_, err = dyn.PutItem(&dynamodb.PutItemInput{
-		Item:     p,
-		TableName: aws.String(tableName),
-	})
-
-	return err
-}
-
-func InvokeLambda(e static.DBAttachmentEvent) error {
-	payload, err := json.Marshal(e)
-	if err != nil {
-		return err
-	}
-
-	_, err = lam.Invoke(&lambda.InvokeInput{
-		FunctionName:   aws.String(static.FUNCTION),
-		InvocationType: aws.String(lambda.InvocationTypeRequestResponse),
-		Payload:        payload,
-	})
-
-	return err
 }

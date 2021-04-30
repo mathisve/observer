@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gus/cloud"
 	"log"
 	"os"
 	"os/signal"
@@ -8,15 +9,12 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
-	"observerBot/listeners"
-	"observerBot/static"
+	"gus/listeners"
+	"gus/static"
 )
 
 func init() {
 	static.SetStaticVars()
-}
-
-type Event struct {
 }
 
 func main() {
@@ -30,8 +28,6 @@ func main() {
 
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
 
-	dg.AddHandler(listeners.NewVoiceListener().Handler)
-	dg.AddHandler(listeners.NewMemberAddListener().Handler)
 	dg.AddHandler(listeners.NewMessageListener().Handler)
 
 	err = dg.Open()
@@ -39,6 +35,8 @@ func main() {
 		log.Println(static.ERROR_OPENING_CONNECTION, err)
 		return
 	}
+
+	go cloud.PushLogs()
 
 	// Wait here until CTRL-C or other term signal is received.
 	log.Println(static.BOT_IS_RUNNING)
