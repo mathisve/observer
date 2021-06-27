@@ -1,11 +1,14 @@
-FROM golang:1.16 AS builder
+FROM golang:1.16-alpine AS builder
 
-WORKDIR /app
+RUN go version
+WORKDIR /build
 COPY . .
 
 RUN go build -o main .
 
-FROM alpine:latest
+FROM alpine:latest AS final
+RUN apk update && apk add ca-certificates
+RUN update-ca-certificates
 WORKDIR /app
-COPY --from=builder /app/main .
-CMD ["/main"]
+COPY --from=builder /build .
+ENTRYPOINT ["/app/main"]
