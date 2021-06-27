@@ -46,6 +46,8 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 			if err != nil {
 				log.Println(err)
 			}
+
+			break
 		}
 
 
