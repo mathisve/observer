@@ -3,8 +3,8 @@ package static
 import "os"
 
 var (
-	TOKEN    string
-	REGION   string
+	TOKEN          string
+	REGION         string
 	LOG_GROUP_NAME string
 )
 

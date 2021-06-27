@@ -38,9 +38,9 @@ func init() {
 }
 
 func PutLogEvent(e static.LogEvent) error {
-	event := cloudwatchlogs.InputLogEvent {
-			Timestamp: &e.Timestamp,
-			Message:   &e.Message,
+	event := cloudwatchlogs.InputLogEvent{
+		Timestamp: &e.Timestamp,
+		Message:   &e.Message,
 	}
 
 	logQueueLock.Lock()
@@ -67,7 +67,7 @@ func CreateLogStream() error {
 	return err
 }
 
-func PushLogs()  {
+func PushLogs() {
 	for {
 		time.Sleep(time.Second * 15)
 
@@ -83,13 +83,13 @@ func PushLogs()  {
 				}
 
 				input = cloudwatchlogs.PutLogEventsInput{
-					LogEvents:  logQueue,
+					LogEvents:     logQueue,
 					LogGroupName:  aws.String(os.Getenv("LOG_GROUP_NAME")),
 					LogStreamName: &logStreamName,
 				}
 			} else {
 				input = cloudwatchlogs.PutLogEventsInput{
-					LogEvents:  logQueue,
+					LogEvents:     logQueue,
 					LogGroupName:  aws.String(os.Getenv("LOG_GROUP_NAME")),
 					LogStreamName: &logStreamName,
 					SequenceToken: &sequenceToken,

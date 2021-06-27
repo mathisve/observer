@@ -5,8 +5,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"gus/cloud"
 	"gus/static"
-	"strings"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -21,6 +21,10 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 
 	if strings.Contains(m.Content, "woah") {
 		s.ChannelMessageSend(m.ChannelID, "woah")
+	}
+
+	if strings.Contains(m.Content, ":<>") {
+		s.ChannelMessageSend(m.ChannelID, "chimken")
 	}
 
 	logMsg := static.LogEventMessage{
