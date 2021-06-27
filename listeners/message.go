@@ -27,6 +27,10 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 		s.ChannelMessageSend(m.ChannelID, "chimken")
 	}
 
+	if strings.Contains(m.Content, "chimken") {
+		s.ChannelMessageSend(m.ChannelID, ":<>")
+	}
+
 	logMsg := static.LogEventMessage{
 		ChannelId:     m.ChannelID,
 		GuildId:       m.GuildID,
