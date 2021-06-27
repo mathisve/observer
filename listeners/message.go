@@ -10,27 +10,46 @@ import (
 	"time"
 )
 
+type KeyValue struct {
+	key string
+	value string
+}
+
 func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	if strings.Contains(m.Content, "@yall") {
-		s.ChannelMessageSend(m.ChannelID, "@yall")
+	var keyValues = []KeyValue{
+		{
+			key:   "@yall",
+			value: "@yall",
+		},
+		{
+			key:   "woah",
+			value: "haow",
+		},
+		{
+			key: ":<>",
+			value: "chimken",
+		},
+		{
+			key: "chimken",
+			value: ":<>",
+		},
 	}
 
-	if strings.Contains(m.Content, "woah") {
-		s.ChannelMessageSend(m.ChannelID, "woah")
-	}
+	for _, keyvalue := range keyValues {
 
-	if strings.Contains(m.Content, ":<>") {
-		s.ChannelMessageSend(m.ChannelID, "chimken")
-	}
+		if strings.Contains(m.Content, keyvalue.key) {
+			_, err := s.ChannelMessageSend(m.ChannelID, keyvalue.value)
+			if err != nil {
+				log.Println(err)
+			}
+		}
 
-	if strings.Contains(m.Content, "chimken") {
-		s.ChannelMessageSend(m.ChannelID, ":<>")
-	}
 
+	}
 	logMsg := static.LogEventMessage{
 		ChannelId:     m.ChannelID,
 		GuildId:       m.GuildID,
