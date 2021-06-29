@@ -1,10 +1,10 @@
 # observerBot
 
 ## Set-up
-- Paste discord token and AWS Secrets in `Dockerfile`.
-- (OPTIONAL) Change the role and channel ID's in `consts.go`
+All variables are set using K8s secrets/env vars
+
 - `docker build . -t observerbot`
-- `docker tag observerbot mathisco/observerbot:latest`
-- `docker push mathisco/observerbot:latest`
+- `docker tag observerbot mathisve/observerbot:latest`
+- `docker push mathisve/observerbot:latest`
 
 I am not liable or responsible for any damages incurred when using observerBot. Use on your own accord.
