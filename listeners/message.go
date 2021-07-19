@@ -41,6 +41,10 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 			key: "banana",
 			value: "hahahaha",
 		},
+		{
+			key: "observer",
+			value: "https://github.com/mathisve/observer",
+		},
 	}
 
 	for _, keyvalue := range keyValues {
