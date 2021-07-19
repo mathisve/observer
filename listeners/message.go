@@ -37,6 +37,10 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 			key: "chimken",
 			value: ":<>",
 		},
+		{
+			key: "banana",
+			value: "hahahaha",
+		},
 	}
 
 	for _, keyvalue := range keyValues {
