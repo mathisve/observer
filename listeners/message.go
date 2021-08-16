@@ -67,7 +67,7 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 
 	for _, keyvalue := range commands.KeyValues {
 		if strings.Contains(m.Content, keyvalue.Key) {
-			_, err := s.ChannelMessageSendReply(m.ChannelID, keyvalue.Value, m.MessageReference)
+			_, err := s.ChannelMessageSendReply(m.ChannelID, keyvalue.Value, m.Reference())
 
 			if err != nil {
 				log.Println(err)
