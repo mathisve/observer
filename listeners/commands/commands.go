@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"log"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -32,18 +34,31 @@ var KeyValues = []KeyValue{
 	},
 }
 
+// WoahReply replies to a message with "Woah!"
 func WoahReply(s *discordgo.Session, m *discordgo.MessageCreate) {
-	s.ChannelMessageSend(m.ChannelID, "Woah!")
+	_, err := s.ChannelMessageSendReply(m.ChannelID, "Woah!", m.MessageReference)
+	if err != nil {
+		log.Panicln(err)
+	}
 }
 
 func SendGif(s *discordgo.Session, m *discordgo.MessageCreate, link string) {
-	s.ChannelMessageSend(m.ChannelID, link)
+	_, err := s.ChannelMessageSendReply(m.ChannelID, link, m.MessageReference)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func AngryRateLimit(s *discordgo.Session, m *discordgo.MessageCreate) {
-	s.ChannelMessageSend(m.ChannelID, "Tenor is rate limiting us. please slow down a little")
+	_, err := s.ChannelMessageSendReply(m.ChannelID, "Tenor is rate limiting us. please slow down a little", m.MessageReference)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func Woopsie(s *discordgo.Session, m *discordgo.MessageCreate) {
-	s.ChannelMessageSend(m.ChannelID, "Something related to Tenor went tits up, sowwy")
+	_, err := s.ChannelMessageSendReply(m.ChannelID, "Something related to Tenor went tits up, sowwy", m.MessageReference)
+	if err != nil {
+		log.Println(err)
+	}
 }

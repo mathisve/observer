@@ -23,6 +23,9 @@ type tenorResponse struct {
 	} `json:"Results"`
 }
 
+// SearchForGif searches for a gif on Tenor
+// searchTerm is supposed the a string similar to: "cry about it" or "poggers"
+// spaces are automatically replaced with %20
 func SearchForGif(searchTerm string) (results []string, err error) {
 
 	var sanitizedSearchTerm string
@@ -69,12 +72,14 @@ func SearchForGif(searchTerm string) (results []string, err error) {
 	case 200:
 		return results, nil
 	case 429:
+		rateLimit()
 		return results, errors.New(static.ERROR_TENOR_RATE_LIMIT)
 	default:
 		return results, err
 	}
 }
 
+// IsRateLimited returns true if the API is currently being rate limited
 func IsRateLimited() bool {
 	defer rateLimitedLock.Unlock()
 	rateLimitedLock.Lock()
@@ -82,7 +87,7 @@ func IsRateLimited() bool {
 	return rateLimited
 }
 
-func RateLimit() {
+func rateLimit() {
 	rateLimitedLock.Lock()
 	if rateLimited {
 		return

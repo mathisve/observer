@@ -14,7 +14,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var gifPrefix = "gif:"
+var (
+	gifPrefix = "gif:"
+)
 
 func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
@@ -53,7 +55,6 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 			results, err := gifs.SearchForGif(searchTerm)
 			if err != nil {
 				if err.Error() == static.ERROR_TENOR_RATE_LIMIT {
-					gifs.RateLimit()
 					commands.AngryRateLimit(s, m)
 				} else {
 					commands.Woopsie(s, m)
@@ -66,7 +67,8 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 
 	for _, keyvalue := range commands.KeyValues {
 		if strings.Contains(m.Content, keyvalue.Key) {
-			_, err := s.ChannelMessageSend(m.ChannelID, keyvalue.Value)
+			_, err := s.ChannelMessageSendReply(m.ChannelID, keyvalue.Value, m.MessageReference)
+
 			if err != nil {
 				log.Println(err)
 			}

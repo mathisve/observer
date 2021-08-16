@@ -1,3 +1,4 @@
+![publish](https://github.com/mathisve/observer/actions/workflows/build-and-publish.yaml/badge.svg)
 # observerBot
 
 ## Set-up
