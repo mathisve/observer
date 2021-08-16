@@ -37,12 +37,7 @@ func WoahReply(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func SendGif(s *discordgo.Session, m *discordgo.MessageCreate, link string) {
-	s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-		URL: link,
-		Image: &discordgo.MessageEmbedImage{
-			URL: link,
-		},
-	})
+	s.ChannelMessageSend(m.ChannelID, link)
 }
 
 func AngryRateLimit(s *discordgo.Session, m *discordgo.MessageCreate) {
