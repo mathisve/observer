@@ -2,55 +2,71 @@ package listeners
 
 import (
 	"encoding/json"
-	"github.com/bwmarrin/discordgo"
 	"gus/cloud"
+	"gus/cloud/gifs"
+	"gus/listeners/commands"
 	"gus/static"
 	"log"
+	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 )
 
-type KeyValue struct {
-	key string
-	value string
-}
+var gifPrefix = "gif:"
 
 func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	var keyValues = []KeyValue{
-		{
-			key:   "@yall",
-			value: "@yall",
-		},
-		{
-			key:   "woah",
-			value: "haow",
-		},
-		{
-			key: ":<>",
-			value: "chimken",
-		},
-		{
-			key: "chimken",
-			value: ":<>",
-		},
-		{
-			key: "banana",
-			value: "hahahaha",
-		},
-		{
-			key: "observer",
-			value: "https://github.com/mathisve/observer",
-		},
+	go func() {
+		logMsg := static.LogEventMessage{
+			ChannelId:     m.ChannelID,
+			GuildId:       m.GuildID,
+			MessageId:     m.ID,
+			ContentLength: len(m.Content),
+			Bot:           m.Author.Bot,
+		}
+
+		msg, err := json.Marshal(logMsg)
+		if err != nil {
+			log.Println(err)
+		}
+
+		d := static.LogEvent{
+			Message:   string(msg),
+			Timestamp: time.Now().UnixNano() / int64(time.Millisecond),
+		}
+
+		err = cloud.PutLogEvent(d)
+		if err != nil {
+			log.Println(err)
+		}
+
+	}()
+
+	if len(m.Content) > 4 && len(m.Content) < 50 && static.TENOR_API_KEY != "" {
+		if m.Content[0:4] == gifPrefix {
+			searchTerm := m.Content[4:len(m.Content)]
+			results, err := gifs.SearchForGif(searchTerm)
+			if err != nil {
+				if err.Error() == static.ERROR_TENOR_RATE_LIMIT {
+					gifs.RateLimit()
+					commands.AngryRateLimit(s, m)
+				} else {
+					commands.Woopsie(s, m)
+				}
+			}
+
+			commands.SendGif(s, m, results[rand.Intn(len(results))])
+		}
 	}
 
-	for _, keyvalue := range keyValues {
-
-		if strings.Contains(m.Content, keyvalue.key) {
-			_, err := s.ChannelMessageSend(m.ChannelID, keyvalue.value)
+	for _, keyvalue := range commands.KeyValues {
+		if strings.Contains(m.Content, keyvalue.Key) {
+			_, err := s.ChannelMessageSend(m.ChannelID, keyvalue.Value)
 			if err != nil {
 				log.Println(err)
 			}
@@ -58,29 +74,5 @@ func (l *MessageListener) Handler(s *discordgo.Session, m *discordgo.MessageCrea
 			break
 		}
 
-
 	}
-	logMsg := static.LogEventMessage{
-		ChannelId:     m.ChannelID,
-		GuildId:       m.GuildID,
-		MessageId:     m.ID,
-		ContentLength: len(m.Content),
-		Bot:           m.Author.Bot,
-	}
-
-	msg, err := json.Marshal(logMsg)
-	if err != nil {
-		log.Println(err)
-	}
-
-	d := static.LogEvent{
-		Message:   string(msg),
-		Timestamp: time.Now().UnixNano() / int64(time.Millisecond),
-	}
-
-	err = cloud.PutLogEvent(d)
-	if err != nil {
-		log.Println(err)
-	}
-
 }
