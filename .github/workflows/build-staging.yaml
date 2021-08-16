@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: mathisve/observerbot:latest-ci
+          tags: mathisve/observerbot:staging-ci
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
