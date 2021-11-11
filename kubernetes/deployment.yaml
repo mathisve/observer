@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: observerbot
+  namespace: observer
+  labels:
+    app: observerbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: observerbot
+  template:
+    metadata:
+      namespace: observer
+      labels:
+        app: observerbot
+    spec:
+      containers:
+        - name: observerbot
+          image: mathisve/observerbot:staging-ci
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "100m"
+            limits:
+              memory: "200Mi"
+              cpu: "200m"
+          env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: observerbotsecret
+                  key: TOKEN
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: observerbotsecret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: observerbotsecret
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: observerbotsecret
+                  key: AWS_DEFAULT_REGION
+            - name: LOG_GROUP_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: observerbotsecret
+                  key: LOG_GROUP_NAME
+            - name: TENOR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: observerbotsecret
+                  key: TENOR_API_KEY
