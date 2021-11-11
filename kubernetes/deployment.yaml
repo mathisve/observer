@@ -18,8 +18,6 @@ spec:
     spec:
       containers:
         - name: observerbot
-          image: mathisve/observerbot:staging-ci
-          imagePullPolicy: IfNotPresent
           resources:
             requests:
               memory: "100Mi"
