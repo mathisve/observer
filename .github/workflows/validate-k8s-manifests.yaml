@@ -6,7 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Validate K8s manifests
-        uses: makocchi-git/actions-k8s-manifests-validate-kubeval@1.0.1
+      
+      - name: Kubernetes yaml validation by kubeval
+        uses: makocchi-git/actions-k8s-manifests-validate-kubeval@v1.0.1
         with:
           files: kubernetes
