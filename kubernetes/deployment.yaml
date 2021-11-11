@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: observerbot
-          image: mathisve/observerbot:staging-ci
+          image: mathisve/observerbot:latest-ci
           imagePullPolicy: IfNotPresent
           resources:
             requests:
